@@ -1,0 +1,35 @@
+name: Static checks
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  docs-and-iac:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Bicep
+        uses: Azure/setup-bicep@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Build Bicep files
+        shell: bash
+        run: |
+          set -euo pipefail
+          find blueprints -path "*/bicep/main.bicep" -print0 | while IFS= read -r -d '' file; do
+            bicep build "$file"
+          done
+
+      - name: Check Terraform formatting
+        shell: bash
+        run: |
+          set -euo pipefail
+          find blueprints -path "*/terraform" -type d -print0 | while IFS= read -r -d '' dir; do
+            terraform -chdir="$dir" fmt -check
+          done
+

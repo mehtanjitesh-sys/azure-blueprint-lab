@@ -1,0 +1,26 @@
+# Terraform
+**/.terraform/
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/terraform.tfstate.*
+**/*.tfplan
+
+# Azure Functions / app packages
+**/.python_packages/
+**/bin/
+**/obj/
+**/local.settings.json
+
+# Local evidence and temp files
+**/evidence/*.png
+**/evidence/*.jpg
+**/evidence/*.jpeg
+**/evidence/*.log
+**/evidence/*.txt
+!**/evidence/README.md
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+
