@@ -2,13 +2,18 @@ targetScope = 'resourceGroup'
 
 param location string = 'eastus'
 @minLength(2)
+@maxLength(7)
 param environment string = 'dev'
 @minLength(3)
+@maxLength(27)
 param resourcePrefix string = 'blueprint-aks'
+@minLength(6)
+@maxLength(13)
 param uniqueSuffix string = uniqueString(resourceGroup().id, resourcePrefix, environment)
 
-var acrName = take(toLower(replace('acr${resourcePrefix}${environment}${uniqueSuffix}', '-', '')), 50)
+var acrName = toLower(replace('acr${resourcePrefix}${environment}${uniqueSuffix}', '-', ''))
 var aksName = 'aks-${resourcePrefix}-${environment}'
+var acrPullRoleDefinitionId = '7f951dda-4ed3-4680-a7ca-43fe172d538d'
 
 resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: acrName
@@ -54,10 +59,10 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-05-01' = {
 }
 
 resource acrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(acr.id, aks.properties.identityProfile.kubeletidentity.objectId, 'AcrPull')
+  name: guid(acr.id, aksName, acrPullRoleDefinitionId)
   scope: acr
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', acrPullRoleDefinitionId)
     principalId: aks.properties.identityProfile.kubeletidentity.objectId
     principalType: 'ServicePrincipal'
   }

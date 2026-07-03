@@ -2,12 +2,18 @@ targetScope = 'resourceGroup'
 
 param location string = 'eastus'
 @minLength(2)
+@maxLength(5)
 param environment string = 'dev'
 @minLength(3)
 param resourcePrefix string = 'blueprint-imagepipe'
+@minLength(3)
+@maxLength(4)
+param storageNamePrefix string = 'img'
+@minLength(6)
+@maxLength(13)
 param uniqueSuffix string = uniqueString(resourceGroup().id, resourcePrefix, environment)
 
-var storageName = toLower(replace('st${resourcePrefix}${environment}${uniqueSuffix}', '-', ''))
+var storageName = toLower('st${storageNamePrefix}${environment}${uniqueSuffix}')
 var appName = 'func-${resourcePrefix}-${environment}-${uniqueSuffix}'
 var planName = 'plan-${resourcePrefix}-${environment}'
 var insightsName = 'appi-${resourcePrefix}-${environment}'
@@ -16,7 +22,7 @@ var storageQueueDataContributorRoleId = '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
 var storageTableDataContributorRoleId = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
 
 resource storage 'Microsoft.Storage/storageAccounts@2024-01-01' = {
-  name: take(storageName, 24)
+  name: storageName
   location: location
   sku: {
     name: 'Standard_LRS'
