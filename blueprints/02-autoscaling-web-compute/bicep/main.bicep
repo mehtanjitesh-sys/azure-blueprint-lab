@@ -7,10 +7,16 @@ param adminUsername string = 'azureuser'
 @secure()
 param adminSshPublicKey string
 
+var vnetName = 'vnet-${resourcePrefix}-${environment}'
+var lbName = 'lb-${resourcePrefix}-${environment}'
+var frontendName = 'public-frontend'
+var backendPoolName = 'web-backend'
+var probeName = 'http-probe'
+var webSubnetName = 'web-subnet'
 var cloudInit = base64('#cloud-config\npackage_update: true\npackages:\n  - nginx\nruncmd:\n  - systemctl enable nginx\n  - systemctl start nginx\n  - echo "Azure Blueprint Lab VMSS" > /var/www/html/index.html\n')
 
 resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
-  name: 'vnet-${resourcePrefix}-${environment}'
+  name: vnetName
   location: location
   properties: {
     addressSpace: {
@@ -20,7 +26,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
     }
     subnets: [
       {
-        name: 'web-subnet'
+        name: webSubnetName
         properties: {
           addressPrefix: '10.10.1.0/24'
         }
@@ -41,7 +47,7 @@ resource publicIp 'Microsoft.Network/publicIPAddresses@2024-05-01' = {
 }
 
 resource lb 'Microsoft.Network/loadBalancers@2024-05-01' = {
-  name: 'lb-${resourcePrefix}-${environment}'
+  name: lbName
   location: location
   sku: {
     name: 'Standard'
@@ -49,7 +55,7 @@ resource lb 'Microsoft.Network/loadBalancers@2024-05-01' = {
   properties: {
     frontendIPConfigurations: [
       {
-        name: 'public-frontend'
+        name: frontendName
         properties: {
           publicIPAddress: {
             id: publicIp.id
@@ -59,12 +65,12 @@ resource lb 'Microsoft.Network/loadBalancers@2024-05-01' = {
     ]
     backendAddressPools: [
       {
-        name: 'web-backend'
+        name: backendPoolName
       }
     ]
     probes: [
       {
-        name: 'http-probe'
+        name: probeName
         properties: {
           protocol: 'Http'
           port: 80
@@ -77,13 +83,13 @@ resource lb 'Microsoft.Network/loadBalancers@2024-05-01' = {
         name: 'http-rule'
         properties: {
           frontendIPConfiguration: {
-            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', lb.name, 'public-frontend')
+            id: resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', lbName, frontendName)
           }
           backendAddressPool: {
-            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', lb.name, 'web-backend')
+            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', lbName, backendPoolName)
           }
           probe: {
-            id: resourceId('Microsoft.Network/loadBalancers/probes', lb.name, 'http-probe')
+            id: resourceId('Microsoft.Network/loadBalancers/probes', lbName, probeName)
           }
           protocol: 'Tcp'
           frontendPort: 80
@@ -97,6 +103,10 @@ resource lb 'Microsoft.Network/loadBalancers@2024-05-01' = {
 resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
   name: 'vmss-${resourcePrefix}-${environment}'
   location: location
+  dependsOn: [
+    vnet
+    lb
+  ]
   sku: {
     name: 'Standard_B1s'
     capacity: 2
@@ -147,11 +157,11 @@ resource vmss 'Microsoft.Compute/virtualMachineScaleSets@2024-07-01' = {
                   name: 'ipconfig'
                   properties: {
                     subnet: {
-                      id: vnet.properties.subnets[0].id
+                      id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, webSubnetName)
                     }
                     loadBalancerBackendAddressPools: [
                       {
-                        id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', lb.name, 'web-backend')
+                        id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', lbName, backendPoolName)
                       }
                     ]
                   }
