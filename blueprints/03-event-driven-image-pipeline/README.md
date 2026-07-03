@@ -88,11 +88,11 @@ Store proof in `evidence/`:
 ## Security Notes
 
 - Public blob access is disabled.
-- Use managed identity and RBAC for production function access.
+- The Function App uses managed identity and Storage data-plane RBAC instead of committing or storing a storage account key in source.
 - Put secrets in app settings sourced from Key Vault references where possible.
+- If a hosting plan or runtime pattern requires `AzureWebJobsStorage` as a connection string, treat the storage key as sensitive because it can land in deployment history, app settings, and Terraform state.
 
 ## Tradeoff Notes
 
 - Bicep is straightforward for the Azure-native resource graph.
 - Terraform is useful when the function depends on external systems, DNS, GitHub, or other non-Azure providers.
-

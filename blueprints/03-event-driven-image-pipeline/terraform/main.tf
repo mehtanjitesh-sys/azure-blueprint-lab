@@ -54,6 +54,27 @@ resource "azurerm_storage_container" "thumbnails" {
   container_access_type = "private"
 }
 
+resource "azurerm_role_assignment" "function_blob_data_owner" {
+  scope                = azurerm_storage_account.this.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = azurerm_linux_function_app.this.identity[0].principal_id
+  principal_type       = "ServicePrincipal"
+}
+
+resource "azurerm_role_assignment" "function_queue_data_contributor" {
+  scope                = azurerm_storage_account.this.id
+  role_definition_name = "Storage Queue Data Contributor"
+  principal_id         = azurerm_linux_function_app.this.identity[0].principal_id
+  principal_type       = "ServicePrincipal"
+}
+
+resource "azurerm_role_assignment" "function_table_data_contributor" {
+  scope                = azurerm_storage_account.this.id
+  role_definition_name = "Storage Table Data Contributor"
+  principal_id         = azurerm_linux_function_app.this.identity[0].principal_id
+  principal_type       = "ServicePrincipal"
+}
+
 resource "azurerm_application_insights" "this" {
   name                = "appi-${var.resource_prefix}-${var.environment}"
   location            = azurerm_resource_group.this.location
@@ -75,9 +96,13 @@ resource "azurerm_linux_function_app" "this" {
   location            = azurerm_resource_group.this.location
   service_plan_id     = azurerm_service_plan.this.id
 
-  storage_account_name       = azurerm_storage_account.this.name
-  storage_account_access_key = azurerm_storage_account.this.primary_access_key
-  https_only                 = true
+  storage_account_name          = azurerm_storage_account.this.name
+  storage_uses_managed_identity = true
+  https_only                    = true
+
+  identity {
+    type = "SystemAssigned"
+  }
 
   site_config {
     application_stack {
@@ -86,8 +111,12 @@ resource "azurerm_linux_function_app" "this" {
   }
 
   app_settings = {
-    FUNCTIONS_WORKER_RUNTIME       = "python"
-    APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.this.instrumentation_key
+    FUNCTIONS_WORKER_RUNTIME              = "python"
+    APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.this.connection_string
+    AzureWebJobsStorage__accountName      = azurerm_storage_account.this.name
+    AzureWebJobsStorage__blobServiceUri   = azurerm_storage_account.this.primary_blob_endpoint
+    AzureWebJobsStorage__queueServiceUri  = azurerm_storage_account.this.primary_queue_endpoint
+    AzureWebJobsStorage__tableServiceUri  = azurerm_storage_account.this.primary_table_endpoint
+    AzureWebJobsStorage__credential       = "managedidentity"
   }
 }
-

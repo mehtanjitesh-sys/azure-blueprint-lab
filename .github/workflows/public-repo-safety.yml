@@ -1,0 +1,35 @@
+name: Public Repo Safety
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Block local Terraform, Azure Functions, and credential files
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -E '(^|/)\.terraform/|\.tfstate(\.|$)|\.tfplan$|(^|/)terraform\.tfvars$|\.auto\.tfvars$|local\.settings\.json$|\.pem$|\.pfx$|\.p12$|\.key$|\.zip$'; then
+            echo "Sensitive local, state, package, or credential files must not be committed."
+            exit 1
+          fi

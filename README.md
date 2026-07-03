@@ -46,6 +46,19 @@ This portfolio uses both because the real engineering question is rarely "which 
 - No secrets are committed.
 - Terraform state files are ignored.
 - Each project includes validation and evidence capture steps.
+- Public repo safety checks block common secret, state, key, and local-value files.
+
+## Public Repo Safety
+
+This repo is public by design. Keep real deployment values in local files only and never commit subscription IDs, tenant IDs, object IDs, keys, state files, plan files, raw screenshots, or unsanitized CLI output.
+
+Before pushing:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\Test-PublicRepoSafety.ps1
+```
+
+See [Security Policy](SECURITY.md) and [Public Repo Safety](docs/PUBLIC-REPO-SAFETY.md).
 
 ## Suggested Branch And PR Flow
 
@@ -55,4 +68,3 @@ This portfolio uses both because the real engineering question is rarely "which 
 4. Deploy only in a sandbox subscription.
 5. Add CLI output or screenshots under `evidence/`.
 6. Destroy resources after validation.
-

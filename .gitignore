@@ -4,12 +4,25 @@
 **/terraform.tfstate
 **/terraform.tfstate.*
 **/*.tfplan
+**/*.plan
+**/plan.out
+**/crash.log
+**/crash.*.log
+**/override.tf
+**/override.tf.json
+**/*_override.tf
+**/*_override.tf.json
+**/terraform.tfvars
+**/*.auto.tfvars
+**/*.tfvars.json
 
 # Azure Functions / app packages
 **/.python_packages/
 **/bin/
 **/obj/
 **/local.settings.json
+**/publish/
+**/*.zip
 
 # Local evidence and temp files
 **/evidence/*.png
@@ -17,10 +30,26 @@
 **/evidence/*.jpeg
 **/evidence/*.log
 **/evidence/*.txt
+**/evidence/raw/
 !**/evidence/README.md
+
+# Credentials and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.pfx
+*.p12
+*.key
+*.cer
+*.crt
+*.kubeconfig
+.azure/
+
+# Bicep generated ARM templates
+**/bicep/main.json
 
 # OS/editor
 .DS_Store
 Thumbs.db
 .vscode/
-
