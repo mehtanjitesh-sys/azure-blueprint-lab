@@ -15,8 +15,8 @@ terraform validate
 For Bicep:
 
 ```bash
-az deployment sub what-if \
-  --location eastus \
+az deployment group what-if \
+  --resource-group <resource-group-name> \
   --template-file bicep/main.bicep \
   --parameters @bicep/parameters.example.json
 ```
@@ -57,4 +57,3 @@ Good evidence includes:
 - Function app local settings
 - Secrets
 - Subscription IDs, tenant IDs, object IDs, or public IPs unless intentionally anonymized
-
