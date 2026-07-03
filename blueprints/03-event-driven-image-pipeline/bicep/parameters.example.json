@@ -10,7 +10,9 @@
     },
     "resourcePrefix": {
       "value": "blueprint-imagepipe"
+    },
+    "storageAccountName": {
+      "value": "stimgdevportfolio001"
     }
   }
 }
-
