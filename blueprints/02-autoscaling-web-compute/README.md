@@ -36,8 +36,12 @@ az group delete --name rg-blueprint-webcompute-dev --yes --no-wait
 
 ```bash
 az login
-az deployment sub create \
-  --location eastus \
+az group create \
+  --name rg-blueprint-webcompute-dev \
+  --location eastus
+
+az deployment group create \
+  --resource-group rg-blueprint-webcompute-dev \
   --template-file bicep/main.bicep \
   --parameters @bicep/parameters.example.json
 ```
@@ -95,4 +99,3 @@ Store proof in `evidence/`:
 
 - Bicep keeps Azure load balancer relationships explicit but can become verbose.
 - Terraform makes repeated associations easier to modularize once the pattern grows.
-

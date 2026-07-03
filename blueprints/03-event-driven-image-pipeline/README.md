@@ -36,8 +36,12 @@ az group delete --name rg-blueprint-imagepipe-dev --yes --no-wait
 
 ```bash
 az login
-az deployment sub create \
-  --location eastus \
+az group create \
+  --name rg-blueprint-imagepipe-dev \
+  --location eastus
+
+az deployment group create \
+  --resource-group rg-blueprint-imagepipe-dev \
   --template-file bicep/main.bicep \
   --parameters @bicep/parameters.example.json
 ```

@@ -1,11 +1,10 @@
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
 param location string = 'eastus'
 param environment string = 'dev'
 param resourcePrefix string = 'blueprint-imagepipe'
-param uniqueSuffix string = uniqueString(subscription().id, resourcePrefix, environment)
+param uniqueSuffix string = uniqueString(resourceGroup().id, resourcePrefix, environment)
 
-var rgName = 'rg-${resourcePrefix}-${environment}'
 var storageName = toLower(replace('st${resourcePrefix}${environment}${uniqueSuffix}', '-', ''))
 var appName = 'func-${resourcePrefix}-${environment}-${uniqueSuffix}'
 var planName = 'plan-${resourcePrefix}-${environment}'
@@ -14,15 +13,9 @@ var storageBlobDataOwnerRoleId = 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b'
 var storageQueueDataContributorRoleId = '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
 var storageTableDataContributorRoleId = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
 
-resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
-  name: rgName
-  location: location
-}
-
 resource storage 'Microsoft.Storage/storageAccounts@2024-01-01' = {
   name: take(storageName, 24)
   location: location
-  scope: rg
   sku: {
     name: 'Standard_LRS'
   }
@@ -58,7 +51,6 @@ resource thumbnails 'Microsoft.Storage/storageAccounts/blobServices/containers@2
 resource insights 'Microsoft.Insights/components@2020-02-02' = {
   name: insightsName
   location: location
-  scope: rg
   kind: 'web'
   properties: {
     Application_Type: 'web'
@@ -68,7 +60,6 @@ resource insights 'Microsoft.Insights/components@2020-02-02' = {
 resource plan 'Microsoft.Web/serverfarms@2023-12-01' = {
   name: planName
   location: location
-  scope: rg
   sku: {
     name: 'Y1'
     tier: 'Dynamic'
@@ -81,7 +72,6 @@ resource plan 'Microsoft.Web/serverfarms@2023-12-01' = {
 resource functionApp 'Microsoft.Web/sites@2023-12-01' = {
   name: appName
   location: location
-  scope: rg
   kind: 'functionapp,linux'
   identity: {
     type: 'SystemAssigned'

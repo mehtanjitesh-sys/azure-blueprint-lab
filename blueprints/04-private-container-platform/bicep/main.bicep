@@ -1,23 +1,16 @@
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
 param location string = 'eastus'
 param environment string = 'dev'
 param resourcePrefix string = 'blueprint-aks'
-param uniqueSuffix string = uniqueString(subscription().id, resourcePrefix, environment)
+param uniqueSuffix string = uniqueString(resourceGroup().id, resourcePrefix, environment)
 
-var rgName = 'rg-${resourcePrefix}-${environment}'
 var acrName = take(toLower(replace('acr${resourcePrefix}${environment}${uniqueSuffix}', '-', '')), 50)
 var aksName = 'aks-${resourcePrefix}-${environment}'
-
-resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
-  name: rgName
-  location: location
-}
 
 resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: acrName
   location: location
-  scope: rg
   sku: {
     name: 'Basic'
   }
@@ -29,7 +22,6 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
 resource aks 'Microsoft.ContainerService/managedClusters@2024-05-01' = {
   name: aksName
   location: location
-  scope: rg
   identity: {
     type: 'SystemAssigned'
   }
@@ -71,4 +63,3 @@ resource acrPull 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 
 output acrName string = acr.name
 output aksName string = aks.name
-

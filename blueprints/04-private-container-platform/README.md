@@ -38,8 +38,12 @@ az group delete --name rg-blueprint-aks-dev --yes --no-wait
 
 ```bash
 az login
-az deployment sub create \
-  --location eastus \
+az group create \
+  --name rg-blueprint-aks-dev \
+  --location eastus
+
+az deployment group create \
+  --resource-group rg-blueprint-aks-dev \
   --template-file bicep/main.bicep \
   --parameters @bicep/parameters.example.json
 ```
@@ -95,4 +99,3 @@ Store proof in `evidence/`:
 
 - Bicep exposes AKS resource details quickly as Azure adds features.
 - Terraform is strong when AKS is only one part of a larger platform with DNS, GitHub, Helm, and monitoring providers.
-

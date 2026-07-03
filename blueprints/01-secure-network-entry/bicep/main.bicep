@@ -1,23 +1,16 @@
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
 param location string = 'eastus'
 param environment string = 'dev'
 param resourcePrefix string = 'blueprint-network'
 
-var rgName = 'rg-${resourcePrefix}-${environment}'
 var vnetName = 'vnet-${resourcePrefix}-${environment}'
 var webNsgName = 'nsg-${resourcePrefix}-web-${environment}'
 var dbNsgName = 'nsg-${resourcePrefix}-db-${environment}'
 
-resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
-  name: rgName
-  location: location
-}
-
 resource webNsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: webNsgName
   location: location
-  scope: rg
   properties: {
     securityRules: [
       {
@@ -43,7 +36,6 @@ resource webNsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
 resource dbNsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: dbNsgName
   location: location
-  scope: rg
   properties: {
     securityRules: [
       {
@@ -66,7 +58,6 @@ resource dbNsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
 resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: vnetName
   location: location
-  scope: rg
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -102,6 +93,5 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   }
 }
 
-output resourceGroupName string = rg.name
+output resourceGroupName string = resourceGroup().name
 output vnetId string = vnet.id
-

@@ -39,8 +39,12 @@ az group delete --name rg-blueprint-network-dev --yes --no-wait
 
 ```bash
 az login
-az deployment sub create \
-  --location eastus \
+az group create \
+  --name rg-blueprint-network-dev \
+  --location eastus
+
+az deployment group create \
+  --resource-group rg-blueprint-network-dev \
   --template-file bicep/main.bicep \
   --parameters @bicep/parameters.example.json
 ```
@@ -96,4 +100,3 @@ Store proof in `evidence/` after deployment:
 
 - Bicep is concise for Azure-native networking and uses Azure resource types directly.
 - Terraform makes state and review workflows explicit, which helps when multiple engineers manage the same network.
-
