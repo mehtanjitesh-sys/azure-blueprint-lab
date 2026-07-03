@@ -1,7 +1,9 @@
 targetScope = 'resourceGroup'
 
 param location string = 'eastus'
+@minLength(2)
 param environment string = 'dev'
+@minLength(3)
 param resourcePrefix string = 'blueprint-aks'
 param uniqueSuffix string = uniqueString(resourceGroup().id, resourcePrefix, environment)
 
