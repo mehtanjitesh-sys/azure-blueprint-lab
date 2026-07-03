@@ -75,7 +75,7 @@ foreach ($file in $files) {
   }
 
   foreach ($pattern in $sensitiveContentPatterns) {
-    if ($relative -notmatch "scripts\\Test-PublicRepoSafety\.ps1$" -and $content -match $pattern) {
+    if ($relative -notmatch "scripts\\(Test-PublicRepoSafety|Sanitize-Evidence)\.ps1$" -and $content -match $pattern) {
       $findings.Add("Sensitive content pattern '$pattern': $relative")
     }
   }

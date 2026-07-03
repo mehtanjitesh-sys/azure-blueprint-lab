@@ -35,6 +35,8 @@ blueprints/<number>-<name>/
 
 Start with [Getting Started](docs/GETTING-STARTED.md). It walks through installing Git, Azure CLI, Bicep, and Terraform, cloning the repo, running safety checks, building Bicep, validating Terraform, and cleaning up lab resources.
 
+For portfolio proof, follow [Validation Evidence](docs/VALIDATION-EVIDENCE.md) and commit only sanitized evidence.
+
 ## Why Both Bicep And Terraform?
 
 Bicep is the cleanest Azure-native option when the target is Azure only. It maps closely to ARM, supports day-one Azure resources quickly, and avoids external state management for simple deployments.
